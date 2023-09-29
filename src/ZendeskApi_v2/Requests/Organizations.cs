@@ -70,8 +70,7 @@ namespace ZendeskApi_v2.Requests
         /// <returns></returns>
         Task<GroupOrganizationResponse> GetOrganizationsStartingWithAsync(string name);
 
-        // TODO: Rename SearchForOrganizationsByExternalIdAsync(string externalId);
-        Task<GroupOrganizationResponse> SearchForOrganizationsAsync(string searchTerm);
+        Task<GroupOrganizationResponse> SearchForOrganizationsByExternalIdAsync(string externalId);
         Task<IndividualOrganizationResponse> GetOrganizationAsync(long id);
         Task<GroupOrganizationResponse> GetMultipleOrganizationsAsync(IEnumerable<long> ids);
         /// <summary>
@@ -289,9 +288,9 @@ namespace ZendeskApi_v2.Requests
             return await GenericPostAsync<GroupOrganizationResponse>($"organizations/autocomplete.json?name={name}");
         }
 
-        public async Task<GroupOrganizationResponse> SearchForOrganizationsAsync(string searchTerm)
+        public async Task<GroupOrganizationResponse> SearchForOrganizationsByExternalIdAsync(string externalId)
         {
-            return await GenericGetAsync<GroupOrganizationResponse>($"organizations/search.json?external_id={searchTerm}");
+            return await GenericGetAsync<GroupOrganizationResponse>($"organizations/search.json?external_id={externalId}");
         }
 
         public async Task<IndividualOrganizationResponse> GetOrganizationAsync(long id)
