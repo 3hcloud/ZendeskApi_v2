@@ -66,8 +66,8 @@ namespace ZendeskApi_v2.Requests
         GroupCommentResponse GetRequestCommentsById(long id);
         IndividualCommentResponse GetSpecificRequestComment(long requestId, long commentId);
         IndividualRequestResponse CreateRequest(Request request);
-        IndividualRequestResponse UpdateRequest(long id, Comment comment);
-        IndividualRequestResponse UpdateRequest(Request request, Comment comment = null);
+        IndividualRequestResponse UpdateRequest(long id, Comment comment, string behalfOf = null);
+        IndividualRequestResponse UpdateRequest(Request request, Comment comment = null, string behalfOf = null);
 #endif
 
 #if ASYNC
@@ -127,7 +127,7 @@ namespace ZendeskApi_v2.Requests
         Task<GroupCommentResponse> GetRequestCommentsByIdAsync(long id);
         Task<IndividualCommentResponse> GetSpecificRequestCommentAsync(long requestId, long commentId);
         Task<IndividualRequestResponse> CreateRequestAsync(Request request);
-        Task<IndividualRequestResponse> UpdateRequestAsync(long id, Comment comment);
+        Task<IndividualRequestResponse> UpdateRequestAsync(long id, Comment comment, string behalfOf = null);
 #endif
     }
 
@@ -190,7 +190,7 @@ namespace ZendeskApi_v2.Requests
             return GenericPost<IndividualRequestResponse>("requests.json", body);
         }
 
-        public IndividualRequestResponse UpdateRequest(long id, Comment comment)
+        public IndividualRequestResponse UpdateRequest(long id, Comment comment, string behalfOf = null)
         {
             var request = new Request
             {
@@ -198,10 +198,10 @@ namespace ZendeskApi_v2.Requests
                 Comment = comment
             };
 
-            return UpdateRequest(request);
+            return UpdateRequest(request, behalfOf: behalfOf);
         }
 
-        public IndividualRequestResponse UpdateRequest(Request request, Comment comment=null)
+        public IndividualRequestResponse UpdateRequest(Request request, Comment comment=null, string behalfOf = null)
         {
             if (!request.Id.HasValue) { throw new ArgumentException("request must have Id set."); }
 
@@ -212,7 +212,7 @@ namespace ZendeskApi_v2.Requests
 
             var body = new { request };
             
-            return GenericPut<IndividualRequestResponse>($"requests/{request.Id.Value}.json", body);
+            return GenericPut<IndividualRequestResponse>($"requests/{request.Id.Value}.json", body, behalfOf: behalfOf);
         }
 #endif
 
@@ -268,10 +268,10 @@ namespace ZendeskApi_v2.Requests
             return await GenericPostAsync<IndividualRequestResponse>("requests.json", body);
         }
 
-        public async Task<IndividualRequestResponse> UpdateRequestAsync(long id, Comment comment)
+        public async Task<IndividualRequestResponse> UpdateRequestAsync(long id, Comment comment, string behalfOf = null)
         {
             var body = new { request = new { comment} };
-            return await GenericPutAsync<IndividualRequestResponse>($"requests/{id}.json", body);
+            return await GenericPutAsync<IndividualRequestResponse>($"requests/{id}.json", body, behalfOf: behalfOf);
         }
 #endif
     }

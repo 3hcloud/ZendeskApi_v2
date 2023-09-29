@@ -28,14 +28,14 @@ namespace ZendeskApi_v2
     {
 #if SYNC
         T GetByPageUrl<T>(string pageUrl, int perPage = 100);
-        T RunRequest<T>(string resource, string requestMethod, object body = null, int? timeout = null, Dictionary<string, object> formParameters = null);
-        RequestResult RunRequest(string resource, string requestMethod, object body = null, int? timeout = null, Dictionary<string, object> formParameters = null);
+        T RunRequest<T>(string resource, string requestMethod, object body = null, int? timeout = null, Dictionary<string, object> formParameters = null, string behalfOf = null);
+        RequestResult RunRequest(string resource, string requestMethod, object body = null, int? timeout = null, Dictionary<string, object> formParameters = null, string behalfOf = null);
 #endif
 
 #if ASYNC
         Task<T> GetByPageUrlAsync<T>(string pageUrl, int perPage = 100);
-        Task<T> RunRequestAsync<T>(string resource, string requestMethod, object body = null, int? timeout = null, Dictionary<string, object> formParameters = null);
-        Task<RequestResult> RunRequestAsync(string resource, string requestMethod, object body = null, int? timeout = null, Dictionary<string, object> formParameters = null);
+        Task<T> RunRequestAsync<T>(string resource, string requestMethod, object body = null, int? timeout = null, Dictionary<string, object> formParameters = null, string behalfOf = null);
+        Task<RequestResult> RunRequestAsync(string resource, string requestMethod, object body = null, int? timeout = null, Dictionary<string, object> formParameters = null, string behalfOf = null);
 #endif
     }
 
@@ -112,20 +112,26 @@ namespace ZendeskApi_v2
             return RunRequest<T>(resource, RequestMethod.Get);
         }
 
-        public T RunRequest<T>(string resource, string requestMethod, object body = null, int? timeout = null, Dictionary<string, object> formParameters = null)
+        public T RunRequest<T>(string resource, string requestMethod, object body = null, int? timeout = null, Dictionary<string, object> formParameters = null, string behalfOf = null)
         {
-            var response = RunRequest(resource, requestMethod, body, timeout, formParameters);
+            var response = RunRequest(resource, requestMethod, body, timeout, formParameters, behalfOf);
             var obj = JsonConvert.DeserializeObject<T>(response.Content, jsonSettings);
             return obj;
         }
 
-        public RequestResult RunRequest(string resource, string requestMethod, object body = null, int? timeout = null, Dictionary<string, object> formParameters = null)
+        public RequestResult RunRequest(string resource, string requestMethod, object body = null, int? timeout = null, Dictionary<string, object> formParameters = null, string behalfOf = null)
         {
             try
             {
                 var requestUrl = ZendeskUrl + resource;
 
                 var req = WebRequest.Create(requestUrl) as HttpWebRequest;
+
+                var behalfOfHeader = GetBehalfOfHeader(behalfOf);
+                if (behalfOfHeader.HasValue)
+                {
+                    req.Headers[behalfOfHeader.Value.Key] = behalfOfHeader.Value.Value;
+                }
 
                 if (Proxy != null)
                 {
@@ -310,9 +316,9 @@ namespace ZendeskApi_v2
             return res.HttpStatusCode == HttpStatusCode.OK;
         }
 
-        protected T GenericPut<T>(string resource, object body = null, Dictionary<string, object> formParameters = null)
+        protected T GenericPut<T>(string resource, object body = null, Dictionary<string, object> formParameters = null, string behalfOf = null)
         {
-            var res = RunRequest<T>(resource, RequestMethod.Put, body, formParameters: formParameters);
+            var res = RunRequest<T>(resource, RequestMethod.Put, body, formParameters: formParameters, behalfOf: behalfOf);
             return res;
         }
 
@@ -343,6 +349,19 @@ namespace ZendeskApi_v2
             }
         }
 
+        protected KeyValuePair<string,string>? GetBehalfOfHeader(string behalfOf)
+        {
+            if (ApiToken.IsNullOrWhiteSpace() &&
+                Password.IsNullOrWhiteSpace() &&
+                !OAuthToken.IsNullOrWhiteSpace() &&
+                !string.IsNullOrWhiteSpace(behalfOf))
+            {
+                return new KeyValuePair<string, string>("X-On-Behalf-Of", behalfOf);
+            }
+
+            return null;
+        }
+
         protected string GetAuthBearerHeader(string oAuthToken)
         {
             return $"Bearer {oAuthToken}";
@@ -368,20 +387,26 @@ namespace ZendeskApi_v2
             return await RunRequestAsync<T>(resource, RequestMethod.Get);
         }
 
-        public async Task<T> RunRequestAsync<T>(string resource, string requestMethod, object body = null, int? timeout = null, Dictionary<string, object> formParameters = null)
+        public async Task<T> RunRequestAsync<T>(string resource, string requestMethod, object body = null, int? timeout = null, Dictionary<string, object> formParameters = null, string behalfOf = null)
         {
-            var response = await RunRequestAsync(resource, requestMethod, body, timeout, formParameters);
+            var response = await RunRequestAsync(resource, requestMethod, body, timeout, formParameters, behalfOf);
             var obj = Task.Factory.StartNew(() => JsonConvert.DeserializeObject<T>(response.Content, jsonSettings));
             return await obj;
         }
 
-        public async Task<RequestResult> RunRequestAsync(string resource, string requestMethod, object body = null, int? timeout = null, Dictionary<string, object> formParameters = null)
+        public async Task<RequestResult> RunRequestAsync(string resource, string requestMethod, object body = null, int? timeout = null, Dictionary<string, object> formParameters = null, string behalfOf = null)
         {
             var requestUrl = ZendeskUrl + resource;
             try
             {
                 var req = WebRequest.Create(requestUrl) as HttpWebRequest;
                 req.ContentType = "application/json";
+
+                var behalfOfHeader = GetBehalfOfHeader(behalfOf);
+                if (behalfOfHeader.HasValue)
+                {
+                    req.Headers[behalfOfHeader.Value.Key] = behalfOfHeader.Value.Value;
+                }
 
                 req.Headers["Authorization"] = GetPasswordOrTokenAuthHeader();
                 req.Method = requestMethod; //GET POST PUT DELETE
@@ -556,9 +581,9 @@ namespace ZendeskApi_v2
             return  res.HttpStatusCode == HttpStatusCode.OK;
         }
 
-        protected async Task<T> GenericPutAsync<T>(string resource, object body = null, Dictionary<string, object> formParameters = null)
+        protected async Task<T> GenericPutAsync<T>(string resource, object body = null, Dictionary<string, object> formParameters = null, string behalfOf = null)
         {
-            return await RunRequestAsync<T>(resource, RequestMethod.Put, body, formParameters: formParameters);
+            return await RunRequestAsync<T>(resource, RequestMethod.Put, body, formParameters: formParameters, behalfOf: behalfOf);
         }
 
         protected async Task<bool> GenericBoolPutAsync(string resource, object body = null)
