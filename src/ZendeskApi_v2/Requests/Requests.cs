@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 #if ASYNC
 using System.Threading.Tasks;
 #endif
@@ -51,6 +51,17 @@ namespace ZendeskApi_v2.Requests
         GroupRequestResponse GetAllCcdRequests(int? perPage = null, int? page = null, string sortCol = null, bool? sortAscending = null);
 
         GroupRequestResponse GetAllRequestsForUser(long id);
+
+        /// <summary>
+        /// Gets all requests linked to specific organization.
+        /// </summary>
+        /// <param name="id">Organization id.</param>
+        /// <param name="perPage">Number of results per page. Must be between 1 and 100.</param>
+        /// <param name="page">Page to get results for. Must be greater than 0.</param>
+        /// <param name="sortCol">Column to sort by. Only "updated_at" and "created_at" are supported by API.</param>
+        /// <param name="sortAscending">Whether or not to sort ascending. API defaults to true.</param>
+        /// <returns>GroupRequestResponse</returns>
+        GroupRequestResponse GetAllRequestsForOrganization(long id, int? perPage = null, int? page = null, string sortCol = null, bool? sortAscending = null);
         IndividualRequestResponse GetRequestById(long id);
         GroupCommentResponse GetRequestCommentsById(long id);
         IndividualCommentResponse GetSpecificRequestComment(long requestId, long commentId);
@@ -101,6 +112,17 @@ namespace ZendeskApi_v2.Requests
         Task<GroupRequestResponse> GetAllCcdRequestsAsync(int? perPage = null, int? page = null, string sortCol = null, bool? sortAscending = null);
 
         Task<GroupRequestResponse> GetAllRequestsForUserAsync(long id);
+
+        /// <summary>
+        /// Gets all requests linked to specific organization.
+        /// </summary>
+        /// <param name="id">Organization id.</param>
+        /// <param name="perPage">Number of results per page. Must be between 1 and 100.</param>
+        /// <param name="page">Page to get results for. Must be greater than 0.</param>
+        /// <param name="sortCol">Column to sort by. Only "updated_at" and "created_at" are supported by API.</param>
+        /// <param name="sortAscending">Whether or not to sort ascending. API defaults to true.</param>
+        /// <returns>GroupRequestResponse</returns>
+        Task<GroupRequestResponse> GetAllRequestsForOrganizationAsync(long id, int? perPage = null, int? page = null, string sortCol = null, bool? sortAscending = null);
         Task<IndividualRequestResponse> GetRequestByIdAsync(long id);
         Task<GroupCommentResponse> GetRequestCommentsByIdAsync(long id);
         Task<IndividualCommentResponse> GetSpecificRequestCommentAsync(long requestId, long commentId);
@@ -140,6 +162,11 @@ namespace ZendeskApi_v2.Requests
         public GroupRequestResponse GetAllRequestsForUser(long id)
         {
             return GenericGet<GroupRequestResponse>($"users/{id}/requests.json");
+        }
+
+        public GroupRequestResponse GetAllRequestsForOrganization(long id, int? perPage = null, int? page = null, string sortCol = null, bool? sortAscending = null)
+        {
+            return GenericPagedSortedGet<GroupRequestResponse>($"organizations/{id}/requests.json", perPage, page, sortCol, sortAscending);
         }
 
         public  IndividualRequestResponse GetRequestById(long id)
@@ -213,6 +240,11 @@ namespace ZendeskApi_v2.Requests
         public async Task<GroupRequestResponse> GetAllRequestsForUserAsync(long id)
         {
             return await GenericGetAsync<GroupRequestResponse>($"users/{id}/requests.json");
+        }
+
+        public async Task<GroupRequestResponse> GetAllRequestsForOrganizationAsync(long id, int? perPage = null, int? page = null, string sortCol = null, bool? sortAscending = null)
+        {
+            return await GenericPagedSortedGetAsync<GroupRequestResponse>($"organizations/{id}/requests.json", perPage, page, sortCol, sortAscending);
         }
 
         public async Task<IndividualRequestResponse> GetRequestByIdAsync(long id)
