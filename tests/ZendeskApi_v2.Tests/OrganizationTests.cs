@@ -417,7 +417,7 @@ public class OrganizationTests : TestBase
     [Test]
     public async Task CanSearchForOrganizationsAsync()
     {
-        var search = await Api.Organizations.SearchForOrganizationsAsync(Organization.ExternalID);
+        var search = await Api.Organizations.SearchForOrganizationsByExternalIdAsync(Organization.ExternalID);
         Assert.That(search.Count, Is.GreaterThan(0));
     }
 
