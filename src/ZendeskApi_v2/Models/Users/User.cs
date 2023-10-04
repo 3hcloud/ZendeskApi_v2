@@ -60,7 +60,7 @@ namespace ZendeskApi_v2.Models.Users
         public string Role { get; set; }
 
         [JsonProperty("agent")]
-        public bool IsAgent { get; set; }
+        public bool? IsAgent { get; set; }
 
         [JsonProperty("role_type")]
         public long? RoleType { get; set; }
