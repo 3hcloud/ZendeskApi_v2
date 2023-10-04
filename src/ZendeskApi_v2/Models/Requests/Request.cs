@@ -120,5 +120,11 @@ namespace ZendeskApi_v2.Models.Requests
 
         [JsonProperty("email_ccs")]
         public IList<EmailCC> EmailCCs { get; set; }
+
+        [JsonProperty("email_cc_ids")]
+        public IList<long> EmailCcIds { get; set; }
+
+        [JsonProperty("collaborator_ids")]
+        public IList<long> CollaboratorIds { get; set; }
     }
 }
