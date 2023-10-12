@@ -110,6 +110,13 @@ namespace ZendeskApi_v2.Models.Requests
         public string FollowupSourceId { get; set; }
 
         /// <summary>
+        /// Once a ticket is closed (as distinct from solved), it can't be reopened. However, you can create a new request that references the closed ticket.
+        /// The parameter only works with closed tickets. It has no effect with other tickets.
+        /// </summary>
+        [JsonProperty("via_followup_source_id")]
+        public int? ViaFollowupSourceId { get; set; }
+
+        /// <summary>
         /// This is used for updates only
         /// </summary>
         [JsonProperty("comment")]
