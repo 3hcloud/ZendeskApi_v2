@@ -114,7 +114,7 @@ namespace ZendeskApi_v2.Models.Requests
         /// The parameter only works with closed tickets. It has no effect with other tickets.
         /// </summary>
         [JsonProperty("via_followup_source_id")]
-        public int? ViaFollowupSourceId { get; set; }
+        public long? ViaFollowupSourceId { get; set; }
 
         /// <summary>
         /// This is used for updates only
